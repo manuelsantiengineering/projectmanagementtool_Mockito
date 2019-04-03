@@ -3,6 +3,10 @@ package com.reactivemanuel.ppmtool.test.web;
 import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Arrays;
+import java.util.List;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import org.junit.Test;
@@ -54,13 +58,12 @@ public class TestControllerTest {
 	// No Service yet
 	@Test
 	public void getTestProject_test() throws Exception{
+		Project project = new Project(1L, "ProjName","PID01","Description");	
 		RequestBuilder request = MockMvcRequestBuilders
 								.get(requestMap+"/project")
 								.accept(MediaType.APPLICATION_JSON);
 
-		String jsonResponse = "{\"id\":1,\"projectName\":\"ProjName\",\"projectIdentifier\":\"PID01\",\"description\":\"Description\","
-								+"\"start_date\":null,\"end_date\":null,\"created_At\":null,\"updated_At\":null}";
-		
+		String jsonResponse = mapper.writeValueAsString(project);			
 		MvcResult result = mockMvc.perform(request)
 							.andExpect(status().isOk())
 							.andExpect(content().json(jsonResponse))
@@ -80,9 +83,28 @@ public class TestControllerTest {
 								.get(requestMap+"/project-from-business-service")
 								.accept(MediaType.APPLICATION_JSON);
 		
-		String jsonResponse = mapper.writeValueAsString(project);		
-//		System.out.println(jsonResponse);
+		String jsonResponse = mapper.writeValueAsString(project);				
+		MvcResult result = mockMvc.perform(request)
+							.andExpect(status().isOk())
+							.andExpect(content().json(jsonResponse))
+							.andReturn();
+
+		JSONAssert.assertEquals(jsonResponse, result.getResponse().getContentAsString(), false);
+	}
+	
+	@Test
+	public void getTestAllProjectsFromService_test() throws Exception{
+		List<Project> projectList = Arrays.asList(
+				new Project(1L, "ProjName01","PID01","Description01"),
+				new Project(2L, "ProjName02","PID03","Description02")
+				);	
+		when(testService.retrieveHardcodedItemList()).thenReturn(projectList);
 		
+		RequestBuilder request = MockMvcRequestBuilders
+								.get(requestMap+"/all-projects-from-business-service")
+								.accept(MediaType.APPLICATION_JSON);
+		
+		String jsonResponse = mapper.writeValueAsString(projectList);				
 		MvcResult result = mockMvc.perform(request)
 							.andExpect(status().isOk())
 							.andExpect(content().json(jsonResponse))

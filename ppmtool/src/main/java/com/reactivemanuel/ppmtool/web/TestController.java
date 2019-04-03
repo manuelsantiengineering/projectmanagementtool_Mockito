@@ -29,10 +29,8 @@ import com.reactivemanuel.ppmtool.services.TestService;
 @RestController
 @RequestMapping("/api/test")
 @CrossOrigin
-
 public class TestController {
-
-//	@Autowired(required=false)
+	
 	@Autowired
 	private TestService			testService;
 	
@@ -42,17 +40,19 @@ public class TestController {
 		return ("Test");		
 	}
 	
-//	@GetMapping("/project")
-	@RequestMapping(value = "/project", method = RequestMethod.GET)
+	@GetMapping("/project")
 	public Project getTestProject(){		
 		return new Project(1L, "ProjName","PID01","Description");		
 	}
 	
 	@GetMapping("/project-from-business-service")
 	public Project getTestProjectFromService(){		
-		Project project = testService.retrieveHardcodedItem();
-		return project;
-//		return new Project(1L, "ProjName","PID01","Description");
+		return testService.retrieveHardcodedItem();
+	}
+	
+	@GetMapping("/all-projects-from-business-service")
+	public Iterable<Project> getTestAllProjectsFromService(){		
+		return testService.retrieveHardcodedItemList();
 	}
 	
 }
